@@ -1,0 +1,56 @@
+﻿<Window x:Class="PointArea.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Canvas Grid.Column="0"/>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.RowSpan="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom">X1:</TextBlock>
+                <TextBox Name="X1" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Bottom">Y1:</TextBlock>
+                <TextBox Name="Y1" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Bottom">X2:</TextBlock>
+                <TextBox Name="X2" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom">Y2:</TextBlock>
+                <TextBox Name="Y2" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Bottom">X3:</TextBlock>
+                <TextBox Name="X3" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Bottom">Y3:</TextBlock>
+                <TextBox Name="Y3" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Bottom">X4:</TextBlock>
+                <TextBox Name="X4" Grid.Row="7" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Bottom">Y4:</TextBlock>
+                <TextBox Name="Y4" Grid.Row="7" Grid.Column="1" VerticalAlignment="Center"/>
+            </Grid>
+            <Button Name="CalcButton" Grid.Row="4" Content="Calculate" VerticalAlignment="Center" Click="CalcButton_Click"/>
+            <TextBlock Name="Area" Grid.Row="5" Text="Area: "/>
+        </Grid>
+    </Grid>
+</Window>
