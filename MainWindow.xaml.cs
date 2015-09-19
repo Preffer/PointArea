@@ -36,7 +36,7 @@ namespace PointArea {
                 Contour[3].Y = float.Parse(Y4.Text);
 
                 int diagonal = FindDiagonal();
-                RearrangePoints(diagonal);
+                SwapPoint(2, diagonal);
                 bool convex = IsConvex();
 
                 double area = 0;
@@ -48,7 +48,7 @@ namespace PointArea {
 
                 Area.Text = string.Format("Area: {0}", area);
             } catch (Exception e) {
-                MessageBox.Show(e.StackTrace, e.Message, MessageBoxButton.OK, MessageBoxImage.Stop);
+                MessageBox.Show(e.Message, e.Message, MessageBoxButton.OK, MessageBoxImage.Stop);
             }
         }
 
@@ -61,6 +61,21 @@ namespace PointArea {
 
             if (k01 == k02 && k01 == k03) {
                 throw new CollinearException("Four points collinear");
+            }
+
+            if (k01 == k02) {
+                SwapPoint(0, 3);
+                return FindDiagonal();
+            }
+
+            if (k01 == k03) {
+                SwapPoint(0, 2);
+                return FindDiagonal();
+            }
+
+            if (k02 == k03) {
+                SwapPoint(0, 1);
+                return FindDiagonal();
             }
 
             if ((k01 - k02) * (k01 - k03) < 0) {
@@ -78,17 +93,21 @@ namespace PointArea {
             }
         }
 
-        private void RearrangePoints(int diagonal) {
-            Point temp = Contour[2];
-            Contour[2] = Contour[diagonal];
-            Contour[diagonal] = temp;
+        private void SwapPoint(int a, int b) {
+            if (a == b) return;
+
+            Point temp = Contour[a];
+            Contour[a] = Contour[b];
+            Contour[b] = temp;
         }
 
         private bool IsConvex() {
+            Vector vec01 = Contour[1] - Contour[0];
+            Vector vec03 = Contour[3] - Contour[0];
             Vector vec21 = Contour[1] - Contour[2];
             Vector vec23 = Contour[3] - Contour[2];
 
-            if (Vector.AngleBetween(vec21, vec23) < 90) {
+            if ((Vector.AngleBetween(vec01, vec03) <= 90) && (Vector.AngleBetween(vec21, vec23) <= 90)) {
                 return true;
             } else {
                 return false;
