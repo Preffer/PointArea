@@ -37,22 +37,41 @@ namespace PointArea {
 
                 int diagonal = FindDiagonal();
                 SwapPoint(2, diagonal);
-                bool convex = IsConvex();
+                int inHull = InHull();
 
-                double area = 0;
-                if (convex) {
-                    area = AreaQuad();
+                Point[] vertex;
+                if (inHull < 0) {
+                    vertex = Contour;
                 } else {
-                    area = AreaTriangle();
+                    vertex = Contour.Where(x => x != Contour[inHull]).ToArray();
                 }
 
-                Area.Text = string.Format("Area: {0}", area);
+                double area = PolygonArea(vertex);
+                Area.Text = string.Format("Area: {0}, Mode: {1}", area, (inHull < 0) ? "Quad" : "Triangle");
+
+                // draw to canvas
+                double maxCanvasValue = Math.Min(PolyCanvas.ActualWidth, PolyCanvas.ActualHeight);
+                double maxPointValue = Contour.Max(p => Math.Max(Math.Abs(p.X), Math.Abs(p.Y)));
+                double scale = maxCanvasValue / maxPointValue / 2;
+
+                Matrix transMatrix = new Matrix();
+                transMatrix.Scale(scale, -scale);
+                transMatrix.Translate(PolyCanvas.ActualWidth / 2, PolyCanvas.ActualHeight / 2);
+
+                PolyCanvas.Children.Clear();
+                DrawPolygon(new PointCollection(Contour.Select(p => p * transMatrix)), Brushes.Black, Brushes.Blue);
+                DrawPolygon(new PointCollection(vertex.Select(p => p * transMatrix)), Brushes.Black, Brushes.Red);
+
             } catch (Exception e) {
                 MessageBox.Show(e.Message, e.Message, MessageBoxButton.OK, MessageBoxImage.Stop);
             }
         }
 
         private int FindDiagonal() {
+            if (Contour.Distinct().ToArray().Length != Contour.Length) {
+                throw new CollinearException("Duplicate points");
+            }
+
             double k01 = Math.Atan2(Contour[1].Y - Contour[0].Y, Contour[1].X - Contour[0].X);
             double k02 = Math.Atan2(Contour[2].Y - Contour[0].Y, Contour[2].X - Contour[0].X);
             double k03 = Math.Atan2(Contour[3].Y - Contour[0].Y, Contour[3].X - Contour[0].X);
@@ -101,28 +120,27 @@ namespace PointArea {
             Contour[b] = temp;
         }
 
-        private bool IsConvex() {
+        private int InHull() {
+            Vector vec02 = Contour[2] - Contour[0];
             Vector vec01 = Contour[1] - Contour[0];
             Vector vec03 = Contour[3] - Contour[0];
+
+            Vector vec20 = Contour[0] - Contour[2];
             Vector vec21 = Contour[1] - Contour[2];
             Vector vec23 = Contour[3] - Contour[2];
 
-            if ((Vector.AngleBetween(vec01, vec03) <= 90) && (Vector.AngleBetween(vec21, vec23) <= 90)) {
-                return true;
+            if ((Vector.AngleBetween(vec02, vec01) > 90) || (Vector.AngleBetween(vec02, vec03) > 90)) {
+                return 0;
             } else {
-                return false;
+                if ((Vector.AngleBetween(vec20, vec21) > 90) || (Vector.AngleBetween(vec20, vec23) > 90)) {
+                    return 2;
+                } else {
+                    return -1;
+                }
             }
         }
 
-        private double AreaQuad() {
-            return AreaPoly(Contour);
-        }
-
-        private double AreaTriangle() {
-            return AreaPoly(Contour.Where(x => x != Contour[2]).ToArray());
-        }
-
-        private double AreaPoly(Point[] vertex) {
+        private double PolygonArea(Point[] vertex) {
             int length = vertex.Length;
             double area = 0;
 
@@ -132,6 +150,15 @@ namespace PointArea {
             }
 
             return Math.Abs(area / 2);
+        }
+
+        private void DrawPolygon(PointCollection points, Brush stroke, Brush fill) {
+            Polygon p = new Polygon();
+            p.Points = points;
+            p.Stroke = stroke;
+            p.Fill = fill;
+            p.Opacity = 0.5;
+            PolyCanvas.Children.Add(p);
         }
     }
 }
