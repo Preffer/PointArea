@@ -35,19 +35,21 @@ namespace PointArea {
                 Contour[3].X = float.Parse(X4.Text);
                 Contour[3].Y = float.Parse(Y4.Text);
 
+                if (Contour.Distinct().ToArray().Length != Contour.Length) {
+                    throw new CollinearException("Duplicate points");
+                }
+
                 int diagonal = FindDiagonal();
                 SwapPoint(2, diagonal);
                 int inHull = InHull();
-
-                Point[] vertex;
-                if (inHull < 0) {
-                    vertex = Contour;
-                } else {
-                    vertex = Contour.Where(x => x != Contour[inHull]).ToArray();
-                }
+                Point[] vertex = (inHull < 0) ? Contour : Contour.Where(x => x != Contour[inHull]).ToArray();
 
                 double area = PolygonArea(vertex);
-                Area.Text = string.Format("Area: {0}, Mode: {1}", area, (inHull < 0) ? "Quad" : "Triangle");
+                Area.Text = string.Format("Area: {0}, Mode: {1}", area, (inHull < 0) ? "Quad" : "Triangle")
+                          + Environment.NewLine
+                          + string.Format("Contour: {0}", String.Join(" ", Contour))
+                          + Environment.NewLine
+                          + string.Format("Vertex: {0}", String.Join(" ", vertex));
 
                 // draw to canvas
                 double maxCanvasValue = Math.Min(PolyCanvas.ActualWidth, PolyCanvas.ActualHeight);
@@ -59,8 +61,8 @@ namespace PointArea {
                 transMatrix.Translate(PolyCanvas.ActualWidth / 2, PolyCanvas.ActualHeight / 2);
 
                 PolyCanvas.Children.Clear();
-                DrawPolygon(new PointCollection(Contour.Select(p => p * transMatrix)), Brushes.Black, Brushes.Blue);
                 DrawPolygon(new PointCollection(vertex.Select(p => p * transMatrix)), Brushes.Black, Brushes.Red);
+                DrawPolygon(new PointCollection(Contour.Select(p => p * transMatrix)), Brushes.Black, Brushes.Blue);
 
             } catch (Exception e) {
                 MessageBox.Show(e.Message, e.Message, MessageBoxButton.OK, MessageBoxImage.Stop);
@@ -68,15 +70,11 @@ namespace PointArea {
         }
 
         private int FindDiagonal() {
-            if (Contour.Distinct().ToArray().Length != Contour.Length) {
-                throw new CollinearException("Duplicate points");
-            }
-
             double k01 = Math.Atan2(Contour[1].Y - Contour[0].Y, Contour[1].X - Contour[0].X);
             double k02 = Math.Atan2(Contour[2].Y - Contour[0].Y, Contour[2].X - Contour[0].X);
             double k03 = Math.Atan2(Contour[3].Y - Contour[0].Y, Contour[3].X - Contour[0].X);
 
-            Console.WriteLine("{0} {1} {2}", k01, k02, k03);
+            Console.WriteLine("k01={0}, k02={1}, k03={2}", k01, k02, k03);
 
             if (k01 == k02 && k01 == k03) {
                 throw new CollinearException("Four points collinear");
@@ -158,6 +156,7 @@ namespace PointArea {
             p.Stroke = stroke;
             p.Fill = fill;
             p.Opacity = 0.5;
+            p.StrokeThickness = 2;
             PolyCanvas.Children.Add(p);
         }
     }
