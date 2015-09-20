@@ -96,13 +96,13 @@ namespace PointArea {
             // hack here to fix Atan of 180
             double flat = Math.Atan2(0, -1);
             if (k01 == flat && k02 < 0 && k03 < 0) {
-                k01 = -k01;
+                k01 *= -1;
             }
             if (k02 == flat && k01 < 0 && k03 < 0) {
-                k02 = -k01;
+                k02 *= -1;
             }
             if (k03 == flat && k01 < 0 && k02 < 0) {
-                k03 = -k01;
+                k03 *= -1;
             }
 
             if ((k01 - k02) * (k01 - k03) < 0) {
