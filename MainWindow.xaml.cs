@@ -45,11 +45,9 @@ namespace PointArea {
                 Point[] vertex = (inHull < 0) ? Contour : Contour.Where(x => x != Contour[inHull]).ToArray();
 
                 double area = PolygonArea(vertex);
-                Area.Text = string.Format("Area: {0}, Mode: {1}", area, (inHull < 0) ? "Quad" : "Triangle")
-                          + Environment.NewLine
-                          + string.Format("Contour: {0}", String.Join(" ", Contour))
-                          + Environment.NewLine
-                          + string.Format("Vertex: {0}", String.Join(" ", vertex));
+                Area.Text = string.Format("Area: {0}, Mode: {1}\n", area, (inHull < 0) ? "Quad" : "Triangle")
+                          + string.Format("Contour: {0}\n", String.Join(" ", Contour))
+                          + string.Format("Vertex: {0}\n", String.Join(" ", vertex));
 
                 // draw to canvas
                 double maxCanvasValue = Math.Min(PolyCanvas.ActualWidth, PolyCanvas.ActualHeight);
@@ -95,6 +93,18 @@ namespace PointArea {
                 return FindDiagonal();
             }
 
+            // hack here to fix Atan of 180
+            double flat = Math.Atan2(0, -1);
+            if (k01 == flat && k02 < 0 && k03 < 0) {
+                k01 = -k01;
+            }
+            if (k02 == flat && k01 < 0 && k03 < 0) {
+                k02 = -k01;
+            }
+            if (k03 == flat && k01 < 0 && k02 < 0) {
+                k03 = -k01;
+            }
+
             if ((k01 - k02) * (k01 - k03) < 0) {
                 return 1;
             } else {
@@ -127,10 +137,10 @@ namespace PointArea {
             Vector vec21 = Contour[1] - Contour[2];
             Vector vec23 = Contour[3] - Contour[2];
 
-            if ((Vector.AngleBetween(vec02, vec01) > 90) || (Vector.AngleBetween(vec02, vec03) > 90)) {
+            if (Math.Abs(Vector.AngleBetween(vec02, vec01)) + Math.Abs(Vector.AngleBetween(vec02, vec03)) >= 180) {
                 return 0;
             } else {
-                if ((Vector.AngleBetween(vec20, vec21) > 90) || (Vector.AngleBetween(vec20, vec23) > 90)) {
+                if (Math.Abs(Vector.AngleBetween(vec20, vec21)) + Math.Abs(Vector.AngleBetween(vec20, vec23)) >= 180) {
                     return 2;
                 } else {
                     return -1;
